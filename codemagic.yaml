@@ -1,13 +1,24 @@
 workflows:
   android-apk:
     name: Android APK Build
-    max_build_duration: 60
+    max_build_duration: 90
     environment:
       java: 17
+      android_signing:
+        - debug
+      vars:
+        ANDROID_SDK_ROOT: /usr/local/share/android-sdk
     scripts:
+      - name: Accept licenses
+        script: yes | sdkmanager --licenses
+      - name: Install required SDK
+        script: |
+          sdkmanager "platform-tools" \
+                     "platforms;android-34" \
+                     "build-tools;34.0.0"
       - name: Grant permission
         script: chmod +x ./gradlew
       - name: Build APK
-        script: ./gradlew assembleDebug
+        script: ./gradlew assembleDebug --stacktrace
     artifacts:
       - app/build/outputs/apk/debug/*.apk
